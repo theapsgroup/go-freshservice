@@ -42,6 +42,38 @@ type Asset struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
+// NewAsset is the data structure required to create a new Asset
+type NewAsset struct {
+	Name         string    `json:"name"`
+	Description  string    `json:"description"`
+	AssetTypeID  int       `json:"asset_type_id"`
+	AssetTag     string    `json:"asset_tag"`
+	Impact       string    `json:"impact"`
+	UsageType    string    `json:"usage_type"`
+	UserID       int       `json:"user_id"`
+	LocationID   int       `json:"location_id"`
+	DepartmentID int       `json:"department_id"`
+	AgentID      int       `json:"agent_id"`
+	GroupID      int       `json:"group_id"`
+	AssignedOn   time.Time `json:"assigned_on"`
+}
+
+// UpdateAsset is the data structure required to update an Asset
+type UpdateAsset struct {
+	Name         string    `json:"name"`
+	Description  string    `json:"description"`
+	AssetTypeID  int       `json:"asset_type_id"`
+	AssetTag     string    `json:"asset_tag"`
+	Impact       string    `json:"impact"`
+	UsageType    string    `json:"usage_type"`
+	UserID       int       `json:"user_id"`
+	LocationID   int       `json:"location_id"`
+	DepartmentID int       `json:"department_id"`
+	AgentID      int       `json:"agent_id"`
+	GroupID      int       `json:"group_id"`
+	AssignedOn   time.Time `json:"assigned_on"`
+}
+
 // ListAssetOptions represents filters for Assets
 type ListAssetOptions struct {
 	ListOptions
@@ -80,8 +112,7 @@ func (s *AssetService) GetAssets(opt *ListAssetOptions) (*Assets, *http.Response
 }
 
 // CreateAsset will create a new Asset in FreshService
-// TODO: Decide if need to implement a custom struct for newAsset since Asset struct has extraneous fields
-func (s *AssetService) CreateAsset(newAsset *Asset) (*Asset, *http.Response, error) {
+func (s *AssetService) CreateAsset(newAsset *NewAsset) (*Asset, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodPost, "assets", newAsset)
 	if err != nil {
 		return nil, nil, err
@@ -97,7 +128,7 @@ func (s *AssetService) CreateAsset(newAsset *Asset) (*Asset, *http.Response, err
 }
 
 // UpdateAsset will update the Asset matching the displayId and return the updated Asset
-func (s *AssetService) UpdateAsset(displayId int, asset *Asset) (*Asset, *http.Response, error) {
+func (s *AssetService) UpdateAsset(displayId int, asset *UpdateAsset) (*Asset, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf("assets/%d", displayId), asset)
 	if err != nil {
 		return nil, nil, err

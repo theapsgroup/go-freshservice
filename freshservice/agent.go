@@ -23,36 +23,77 @@ type SpecificAgent struct {
 
 // Agent represents a FreshService Agent
 type Agent struct {
-	ID                    int         `json:"id"`
-	FirstName             string      `json:"first_name"`
-	LastName              string      `json:"last_name"`
-	Occasional            bool        `json:"occasional"`
-	JobTitle              string      `json:"job_title"`
-	Email                 string      `json:"email"`
-	WorkPhoneNumber       string      `json:"work_phone_number"`
-	MobilePhoneNumber     string      `json:"mobile_phone_number"`
-	DepartmentIDs         []int       `json:"department_ids"`
-	Active                bool        `json:"active"`
-	Address               string      `json:"address"`
-	ReportingManagerID    int         `json:"reporting_manager_id"`
-	TimeZone              string      `json:"time_zone"`
-	TimeFormat            string      `json:"time_format"`
-	Language              string      `json:"language"`
-	LocationID            int         `json:"location_id"`
-	BackgroundInformation string      `json:"background_information"`
-	ScoreboardLevelID     int         `json:"scoreboard_level_id"`
-	MemberOf              []int       `json:"member_of"`
-	ObserverOf            []int       `json:"observer_of"`
-	Roles                 []AgentRole `json:"roles"`
-	LastLoginAt           time.Time   `json:"last_login_at"`
-	LastActiveAt          time.Time   `json:"last_active_at"`
-	HasLoggedIn           bool        `json:"has_logged_in"`
-	CreatedAt             time.Time   `json:"created_at"`
-	UpdatedAt             time.Time   `json:"updated_at"`
+	ID                    int                   `json:"id"`
+	FirstName             string                `json:"first_name"`
+	LastName              string                `json:"last_name"`
+	Occasional            bool                  `json:"occasional"`
+	JobTitle              string                `json:"job_title"`
+	Email                 string                `json:"email"`
+	WorkPhoneNumber       string                `json:"work_phone_number"`
+	MobilePhoneNumber     string                `json:"mobile_phone_number"`
+	DepartmentIDs         []int                 `json:"department_ids"`
+	Active                bool                  `json:"active"`
+	Address               string                `json:"address"`
+	ReportingManagerID    int                   `json:"reporting_manager_id"`
+	TimeZone              string                `json:"time_zone"`
+	TimeFormat            string                `json:"time_format"`
+	Language              string                `json:"language"`
+	LocationID            int                   `json:"location_id"`
+	BackgroundInformation string                `json:"background_information"`
+	ScoreboardLevelID     int                   `json:"scoreboard_level_id"`
+	MemberOf              []int                 `json:"member_of"`
+	ObserverOf            []int                 `json:"observer_of"`
+	Roles                 []AgentRoleAssignment `json:"roles"`
+	LastLoginAt           time.Time             `json:"last_login_at"`
+	LastActiveAt          time.Time             `json:"last_active_at"`
+	HasLoggedIn           bool                  `json:"has_logged_in"`
+	CreatedAt             time.Time             `json:"created_at"`
+	UpdatedAt             time.Time             `json:"updated_at"`
 }
 
-// AgentRole represents a Role Assignment on an Agent
-type AgentRole struct {
+// NewAgent is a data struct for creating a new Agent
+type NewAgent struct {
+	FirstName             string                `json:"first_name"`
+	LastName              string                `json:"last_name"`
+	Occasional            bool                  `json:"occasional"`
+	JobTitle              string                `json:"job_title"`
+	Email                 string                `json:"email"`
+	WorkPhoneNumber       string                `json:"work_phone_number"`
+	MobilePhoneNumber     string                `json:"mobile_phone_number"`
+	DepartmentIDs         []int                 `json:"department_ids"`
+	Address               string                `json:"address"`
+	ReportingManagerID    int                   `json:"reporting_manager_id"`
+	TimeZone              string                `json:"time_zone"`
+	TimeFormat            string                `json:"time_format"`
+	Language              string                `json:"language"`
+	LocationID            int                   `json:"location_id"`
+	BackgroundInformation string                `json:"background_information"`
+	ScoreboardLevelID     int                   `json:"scoreboard_level_id"`
+	MemberOf              []int                 `json:"member_of"`
+	ObserverOf            []int                 `json:"observer_of"`
+	Roles                 []AgentRoleAssignment `json:"roles"`
+}
+
+// UpdateAgent ris the data struct required to update an Agent
+type UpdateAgent struct {
+	Occasional            bool                  `json:"occasional"`
+	Email                 string                `json:"email"`
+	DepartmentIDs         []int                 `json:"department_ids"`
+	Address               string                `json:"address"`
+	ReportingManagerID    int                   `json:"reporting_manager_id"`
+	TimeZone              string                `json:"time_zone"`
+	TimeFormat            string                `json:"time_format"`
+	Language              string                `json:"language"`
+	LocationID            int                   `json:"location_id"`
+	BackgroundInformation string                `json:"background_information"`
+	ScoreboardLevelID     int                   `json:"scoreboard_level_id"`
+	MemberOf              []int                 `json:"member_of"`
+	ObserverOf            []int                 `json:"observer_of"`
+	Roles                 []AgentRoleAssignment `json:"roles"`
+}
+
+// AgentRoleAssignment represents a Role Assignment on an Agent
+type AgentRoleAssignment struct {
 	RoleID          int    `json:"role_id"`
 	AssignmentScope string `json:"assignment_scope"`
 	Groups          []int  `json:"groups"`
@@ -99,8 +140,7 @@ func (s *AgentService) GetAgents(opt *ListAgentOptions) (*Agents, *http.Response
 }
 
 // CreateAgent will create a new Agent in FreshService
-// TODO: Decide if need to implement custom struct for newAgent since full Agent struct has extraneous fields
-func (s *AgentService) CreateAgent(newAgent *Agent) (*Agent, *http.Response, error) {
+func (s *AgentService) CreateAgent(newAgent *NewAgent) (*Agent, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodPost, "agents", newAgent)
 	if err != nil {
 		return nil, nil, err
@@ -116,7 +156,7 @@ func (s *AgentService) CreateAgent(newAgent *Agent) (*Agent, *http.Response, err
 }
 
 // UpdateAgent will update the Agent matching the id and return the updated Agent
-func (s *AgentService) UpdateAgent(id int, agent *Agent) (*Agent, *http.Response, error) {
+func (s *AgentService) UpdateAgent(id int, agent *UpdateAgent) (*Agent, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf("agents/%d", id), agent)
 	if err != nil {
 		return nil, nil, err
