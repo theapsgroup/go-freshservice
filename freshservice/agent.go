@@ -1,6 +1,8 @@
 package freshservice
 
 import (
+	"fmt"
+	"net/http"
 	"time"
 )
 
@@ -49,8 +51,129 @@ type Agent struct {
 	UpdatedAt             time.Time   `json:"updated_at"`
 }
 
+// AgentRole represents a Role Assignment on an Agent
 type AgentRole struct {
 	RoleID          int    `json:"role_id"`
 	AssignmentScope string `json:"assignment_scope"`
 	Groups          []int  `json:"groups"`
+}
+
+// ListAgentOptions represents query filters for Agents
+type ListAgentOptions struct {
+	ListOptions
+	Email  *string `json:"email,omitempty" url:"email,omitempty"`
+	Active *bool   `json:"active,omitempty" url:"active,omitempty"`
+	State  *string `json:"state,omitempty" url:"state,omitempty"`
+}
+
+// GetAgent will return a single Agent by id, assuming a record is found.
+func (s *AgentService) GetAgent(id int) (*Agent, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("agents/%v", id), nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	a := new(SpecificAgent)
+	res, err := s.client.SendRequest(req, &a)
+	if b, s := isSuccessful(res); !b {
+		return nil, res, fmt.Errorf("%s: %v", s, err)
+	}
+
+	return &a.Details, res, nil
+}
+
+// GetAgents will return Agents collection, filter with ListAgentOptions
+func (s *AgentService) GetAgents(opt *ListAgentOptions) (*Agents, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, "agents", opt)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	as := new(Agents)
+	res, err := s.client.SendRequest(req, &as)
+	if b, s := isSuccessful(res); !b {
+		return nil, res, fmt.Errorf("%s: %v", s, err)
+	}
+
+	return as, res, nil
+}
+
+// CreateAgent will create a new Agent in FreshService
+// TODO: Decide if need to implement custom struct for newAgent since full Agent struct has extraneous fields
+func (s *AgentService) CreateAgent(newAgent *Agent) (*Agent, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodPost, "agents", newAgent)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	a := new(SpecificAgent)
+	res, err := s.client.SendRequest(req, &a)
+	if b, s := isSuccessful(res); !b {
+		return nil, res, fmt.Errorf("%s: %v", s, err)
+	}
+
+	return &a.Details, res, nil
+}
+
+// UpdateAgent will update the Agent matching the id and return the updated Agent
+func (s *AgentService) UpdateAgent(id int, agent *Agent) (*Agent, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf("agents/%d", id), agent)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	a := new(SpecificAgent)
+	res, err := s.client.SendRequest(req, &a)
+	if b, s := isSuccessful(res); !b {
+		return nil, res, fmt.Errorf("%s: %v", s, err)
+	}
+
+	return &a.Details, res, nil
+}
+
+// DeleteAgent will completely remove an Agent from FreshService along with their requested Tickets, returns true if successful
+func (s *AgentService) DeleteAgent(id int) (bool, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf("agents/%d/forget", id), nil)
+	if err != nil {
+		return false, nil, err
+	}
+
+	res, err := s.client.SendRequest(req, nil)
+	if b, s := isSuccessful(res); !b {
+		return false, res, fmt.Errorf("%s: %v", s, err)
+	}
+
+	return true, res, nil
+}
+
+// DeactivateAgent will deactivate the FreshService Agent
+func (s *AgentService) DeactivateAgent(id int) (*Agent, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf("agents/%d", id), nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	a := new(SpecificAgent)
+	res, err := s.client.SendRequest(req, &a)
+	if b, s := isSuccessful(res); !b {
+		return nil, res, fmt.Errorf("%s: %v", s, err)
+	}
+
+	return &a.Details, res, nil
+}
+
+// ReactivateAgent will reactivate a deactivated FreshService Agent
+func (s *AgentService) ReactivateAgent(id int) (*Agent, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf("agents/%d/reactivate", id), nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	a := new(SpecificAgent)
+	res, err := s.client.SendRequest(req, &a)
+	if b, s := isSuccessful(res); !b {
+		return nil, res, fmt.Errorf("%s: %v", s, err)
+	}
+
+	return &a.Details, res, nil
 }
