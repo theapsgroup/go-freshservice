@@ -6,18 +6,25 @@ import (
 	"time"
 )
 
+const (
+	agentsUrl          = "agents"
+	agentIdUrl         = "agents/%d"
+	agentForgetUrl     = "agents/%d/forget"
+	agentReactivateUrl = "agents/%d/reactivate"
+)
+
 // AgentService API Docs: https://api.freshservice.com/#agents https://api.freshservice.com/#agent-roles https://api.freshservice.com/#agent-groups
 type AgentService struct {
 	client *Client
 }
 
-// Agents contains collection of Agent
+// Agents contains Collection an array of Agent
 type Agents struct {
 	Collection []Agent `json:"agents"`
 }
 
-// SpecificAgent contains Details of one specific Agent
-type SpecificAgent struct {
+// agentWrapper contains Details of one Agent
+type agentWrapper struct {
 	Details Agent `json:"agent"`
 }
 
@@ -51,8 +58,8 @@ type Agent struct {
 	UpdatedAt             time.Time             `json:"updated_at"`
 }
 
-// NewAgent is a data struct for creating a new Agent
-type NewAgent struct {
+// CreateAgentModel is a data struct for creating a new Agent
+type CreateAgentModel struct {
 	FirstName             string                `json:"first_name"`
 	LastName              string                `json:"last_name"`
 	Occasional            bool                  `json:"occasional"`
@@ -74,8 +81,8 @@ type NewAgent struct {
 	Roles                 []AgentRoleAssignment `json:"roles"`
 }
 
-// UpdateAgent ris the data struct required to update an Agent
-type UpdateAgent struct {
+// UpdateAgentModel ris the data struct required to update an Agent
+type UpdateAgentModel struct {
 	Occasional            bool                  `json:"occasional"`
 	Email                 string                `json:"email"`
 	DepartmentIDs         []int                 `json:"department_ids"`
@@ -99,22 +106,22 @@ type AgentRoleAssignment struct {
 	Groups          []int  `json:"groups"`
 }
 
-// ListAgentOptions represents query filters for Agents
-type ListAgentOptions struct {
+// ListAgentsOptions represents filters/pagination for Agents
+type ListAgentsOptions struct {
 	ListOptions
 	Email  *string `json:"email,omitempty" url:"email,omitempty"`
 	Active *bool   `json:"active,omitempty" url:"active,omitempty"`
 	State  *string `json:"state,omitempty" url:"state,omitempty"`
 }
 
-// GetAgent will return a single Agent by id, assuming a record is found.
+// GetAgent will return a single Agent by id
 func (s *AgentService) GetAgent(id int) (*Agent, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("agents/%v", id), nil)
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(agentIdUrl, id), nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	a := new(SpecificAgent)
+	a := new(agentWrapper)
 	res, err := s.client.SendRequest(req, &a)
 	if b, s := isSuccessful(res); !b {
 		return nil, res, fmt.Errorf("%s: %v", s, err)
@@ -123,9 +130,9 @@ func (s *AgentService) GetAgent(id int) (*Agent, *http.Response, error) {
 	return &a.Details, res, nil
 }
 
-// GetAgents will return Agents collection, filter with ListAgentOptions
-func (s *AgentService) GetAgents(opt *ListAgentOptions) (*Agents, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "agents", opt)
+// ListAgents will return paginated/filtered Agents using ListAgentsOptions
+func (s *AgentService) ListAgents(opt *ListAgentsOptions) (*Agents, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, agentsUrl, opt)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -139,14 +146,14 @@ func (s *AgentService) GetAgents(opt *ListAgentOptions) (*Agents, *http.Response
 	return as, res, nil
 }
 
-// CreateAgent will create a new Agent in FreshService
-func (s *AgentService) CreateAgent(newAgent *NewAgent) (*Agent, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPost, "agents", newAgent)
+// CreateAgent will create and return a new Agent based on CreateAgentModel
+func (s *AgentService) CreateAgent(newAgent *CreateAgentModel) (*Agent, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodPost, agentsUrl, newAgent)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	a := new(SpecificAgent)
+	a := new(agentWrapper)
 	res, err := s.client.SendRequest(req, &a)
 	if b, s := isSuccessful(res); !b {
 		return nil, res, fmt.Errorf("%s: %v", s, err)
@@ -155,14 +162,14 @@ func (s *AgentService) CreateAgent(newAgent *NewAgent) (*Agent, *http.Response, 
 	return &a.Details, res, nil
 }
 
-// UpdateAgent will update the Agent matching the id and return the updated Agent
-func (s *AgentService) UpdateAgent(id int, agent *UpdateAgent) (*Agent, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf("agents/%d", id), agent)
+// UpdateAgent will update and return an Agent matching id based on UpdateAgentModel
+func (s *AgentService) UpdateAgent(id int, agent *UpdateAgentModel) (*Agent, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(agentIdUrl, id), agent)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	a := new(SpecificAgent)
+	a := new(agentWrapper)
 	res, err := s.client.SendRequest(req, &a)
 	if b, s := isSuccessful(res); !b {
 		return nil, res, fmt.Errorf("%s: %v", s, err)
@@ -171,9 +178,9 @@ func (s *AgentService) UpdateAgent(id int, agent *UpdateAgent) (*Agent, *http.Re
 	return &a.Details, res, nil
 }
 
-// DeleteAgent will completely remove an Agent from FreshService along with their requested Tickets, returns true if successful
+// DeleteAgent will completely remove an Agent from FreshService matching id (along with their requested Tickets)
 func (s *AgentService) DeleteAgent(id int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf("agents/%d/forget", id), nil)
+	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf(agentForgetUrl, id), nil)
 	if err != nil {
 		return false, nil, err
 	}
@@ -186,14 +193,14 @@ func (s *AgentService) DeleteAgent(id int) (bool, *http.Response, error) {
 	return true, res, nil
 }
 
-// DeactivateAgent will deactivate the FreshService Agent
+// DeactivateAgent will deactivate the Agent matching the id
 func (s *AgentService) DeactivateAgent(id int) (*Agent, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf("agents/%d", id), nil)
+	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf(agentIdUrl, id), nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	a := new(SpecificAgent)
+	a := new(agentWrapper)
 	res, err := s.client.SendRequest(req, &a)
 	if b, s := isSuccessful(res); !b {
 		return nil, res, fmt.Errorf("%s: %v", s, err)
@@ -202,14 +209,14 @@ func (s *AgentService) DeactivateAgent(id int) (*Agent, *http.Response, error) {
 	return &a.Details, res, nil
 }
 
-// ReactivateAgent will reactivate a deactivated FreshService Agent
+// ReactivateAgent will reactivate a deactivated Agent matching the id
 func (s *AgentService) ReactivateAgent(id int) (*Agent, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf("agents/%d/reactivate", id), nil)
+	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(agentReactivateUrl, id), nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	a := new(SpecificAgent)
+	a := new(agentWrapper)
 	res, err := s.client.SendRequest(req, &a)
 	if b, s := isSuccessful(res); !b {
 		return nil, res, fmt.Errorf("%s: %v", s, err)

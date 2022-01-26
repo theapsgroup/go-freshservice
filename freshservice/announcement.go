@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+const (
+	announcementsUrl  = "announcements"
+	announcementIdUrl = "announcements/%d"
+)
+
 // AnnouncementService API Docs: https://api.freshservice.com/#announcements
 type AnnouncementService struct {
 	client *Client
@@ -16,8 +21,8 @@ type Announcements struct {
 	Collection []Announcement `json:"announcements"`
 }
 
-// SpecificAnnouncement contains Details of one specific Announcement
-type SpecificAnnouncement struct {
+// announcementWrapper contains Details of one Announcement
+type announcementWrapper struct {
 	Details Announcement `json:"announcement"`
 }
 
@@ -41,8 +46,8 @@ type Announcement struct {
 	UpdatedAt        time.Time `json:"updated_at"`
 }
 
-// NewAnnouncement is the data structure required to create an Announcement
-type NewAnnouncement struct {
+// CreateAnnouncementModel is the data structure required to create an Announcement
+type CreateAnnouncementModel struct {
 	Title            string    `json:"title"`
 	BodyHtml         string    `json:"body_html"`
 	VisibleFrom      time.Time `json:"visible_from"`
@@ -54,8 +59,8 @@ type NewAnnouncement struct {
 	AdditionalEmails []string  `json:"additional_emails"`
 }
 
-// UpdateAnnouncement is the data structure required to update an Announcement
-type UpdateAnnouncement struct {
+// UpdateAnnouncementModel is the data structure required to update an Announcement
+type UpdateAnnouncementModel struct {
 	Title            string    `json:"title"`
 	BodyHtml         string    `json:"body_html"`
 	VisibleFrom      time.Time `json:"visible_from"`
@@ -67,20 +72,20 @@ type UpdateAnnouncement struct {
 	AdditionalEmails []string  `json:"additional_emails"`
 }
 
-// ListAnnouncementOptions represents filters for Announcements
-type ListAnnouncementOptions struct {
+// ListAnnouncementsOptions represents filters/pagination for Announcements
+type ListAnnouncementsOptions struct {
 	ListOptions
 	State string `json:"state,omitempty" url:"state,omitempty"`
 }
 
 // GetAnnouncement will return a single Announcement by id
 func (s *AnnouncementService) GetAnnouncement(id int) (*Announcement, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("announcements/%v", id), nil)
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(announcementIdUrl, id), nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	a := new(SpecificAnnouncement)
+	a := new(announcementWrapper)
 	res, err := s.client.SendRequest(req, &a)
 	if b, s := isSuccessful(res); !b {
 		return nil, res, fmt.Errorf("%s: %v", s, err)
@@ -89,9 +94,9 @@ func (s *AnnouncementService) GetAnnouncement(id int) (*Announcement, *http.Resp
 	return &a.Details, res, nil
 }
 
-// GetAnnouncements will return Announcements collection
-func (s *AnnouncementService) GetAnnouncements(opt ListAnnouncementOptions) (*Announcements, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "announcements", opt)
+// ListAnnouncements will return paginated/filtered Announcements using ListAnnouncementsOptions
+func (s *AnnouncementService) ListAnnouncements(opt ListAnnouncementsOptions) (*Announcements, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, announcementsUrl, opt)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -105,14 +110,14 @@ func (s *AnnouncementService) GetAnnouncements(opt ListAnnouncementOptions) (*An
 	return as, res, nil
 }
 
-// CreateAnnouncement will create a new Announcement in FreshService
-func (s *AnnouncementService) CreateAnnouncement(newAnnouncement *NewAnnouncement) (*Announcement, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPost, "announcements", newAnnouncement)
+// CreateAnnouncement will create and return a new Announcement based on CreateAnnouncementModel
+func (s *AnnouncementService) CreateAnnouncement(newAnnouncement *CreateAnnouncementModel) (*Announcement, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodPost, announcementsUrl, newAnnouncement)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	a := new(SpecificAnnouncement)
+	a := new(announcementWrapper)
 	res, err := s.client.SendRequest(req, &a)
 	if b, s := isSuccessful(res); !b {
 		return nil, res, fmt.Errorf("%s: %v", s, err)
@@ -121,14 +126,14 @@ func (s *AnnouncementService) CreateAnnouncement(newAnnouncement *NewAnnouncemen
 	return &a.Details, res, nil
 }
 
-// UpdateAnnouncement will update the Announcement matching the id and return the updated Announcement
-func (s *AnnouncementService) UpdateAnnouncement(id int, announcement *UpdateAnnouncement) (*Announcement, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf("announcements/%d", id), announcement)
+// UpdateAnnouncement will update and return the Announcement matching the id based on UpdateAnnouncementModel
+func (s *AnnouncementService) UpdateAnnouncement(id int, announcement *UpdateAnnouncementModel) (*Announcement, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(announcementIdUrl, id), announcement)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	a := new(SpecificAnnouncement)
+	a := new(announcementWrapper)
 	res, err := s.client.SendRequest(req, &a)
 	if b, s := isSuccessful(res); !b {
 		return nil, res, fmt.Errorf("%s: %v", s, err)
@@ -139,7 +144,7 @@ func (s *AnnouncementService) UpdateAnnouncement(id int, announcement *UpdateAnn
 
 // DeleteAnnouncement irrecoverably removes an Announcement from FreshService matching the id
 func (s *AnnouncementService) DeleteAnnouncement(id int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf("announcements/%d", id), nil)
+	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf(announcementIdUrl, id), nil)
 	if err != nil {
 		return false, nil, err
 	}

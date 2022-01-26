@@ -203,8 +203,6 @@ func (c *Client) NewRequest(method string, path string, opt interface{}) (*retry
 func (c *Client) SendRequest(req *retryHttp.Request, o interface{}) (*http.Response, error) {
     req.SetBasicAuth(c.token, "X")
 
-    fmt.Println(req.URL.String())
-
     res, err := c.client.Do(req)
     if err != nil {
         return nil, fmt.Errorf("error sending request: %v", err)
