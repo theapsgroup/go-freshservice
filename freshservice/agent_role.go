@@ -32,7 +32,7 @@ type ListAgentRoleOptions struct {
 }
 
 // GetAgentRole will return a single AgentRole by id
-func (s *AssetService) GetAgentRole(id int) (*AgentRole, *http.Response, error) {
+func (s *AgentService) GetAgentRole(id int) (*AgentRole, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("roles/%v", id), nil)
 	if err != nil {
 		return nil, nil, err
@@ -48,7 +48,7 @@ func (s *AssetService) GetAgentRole(id int) (*AgentRole, *http.Response, error) 
 }
 
 // GetAgentRoles will return AssetRoles collection
-func (s *AssetService) GetAgentRoles(opt ListAgentRoleOptions) (*AgentRoles, *http.Response, error) {
+func (s *AgentService) GetAgentRoles(opt ListAgentRoleOptions) (*AgentRoles, *http.Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, "roles", opt)
 	if err != nil {
 		return nil, nil, err
