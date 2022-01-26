@@ -6,13 +6,18 @@ import (
 	"time"
 )
 
-// AgentRoles contains a Collection of AgentRole
+const (
+	agentRolesUrl  = "roles"
+	agentRoleIdUrl = "roles/%d"
+)
+
+// AgentRoles contains Collection an array of AgentRole
 type AgentRoles struct {
 	Collection []AgentRole `json:"roles"`
 }
 
-// SpecificAgentRole contains Details of an AgentRole
-type SpecificAgentRole struct {
+// agentRoleWrapper contains Details of an AgentRole
+type agentRoleWrapper struct {
 	Details AgentRole `json:"role"`
 }
 
@@ -26,19 +31,19 @@ type AgentRole struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// ListAgentRoleOptions represents pagination/filtering for AgentRoles
-type ListAgentRoleOptions struct {
+// ListAgentRolesOptions represents pagination/filtering for AgentRoles
+type ListAgentRolesOptions struct {
 	ListOptions
 }
 
 // GetAgentRole will return a single AgentRole by id
 func (s *AgentService) GetAgentRole(id int) (*AgentRole, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("roles/%v", id), nil)
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(agentRoleIdUrl, id), nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	ar := new(SpecificAgentRole)
+	ar := new(agentRoleWrapper)
 	res, err := s.client.SendRequest(req, &ar)
 	if b, s := isSuccessful(res); !b {
 		return nil, res, fmt.Errorf("%s: %v", s, err)
@@ -47,9 +52,9 @@ func (s *AgentService) GetAgentRole(id int) (*AgentRole, *http.Response, error) 
 	return &ar.Details, res, nil
 }
 
-// GetAgentRoles will return AssetRoles collection
-func (s *AgentService) GetAgentRoles(opt ListAgentRoleOptions) (*AgentRoles, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "roles", opt)
+// ListAgentRoles will return paginated/filtered AgentRoles using ListAgentRolesOptions
+func (s *AgentService) ListAgentRoles(opt ListAgentRolesOptions) (*AgentRoles, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, agentRolesUrl, opt)
 	if err != nil {
 		return nil, nil, err
 	}

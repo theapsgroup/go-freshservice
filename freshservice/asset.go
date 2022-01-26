@@ -6,18 +6,29 @@ import (
 	"time"
 )
 
+const (
+	assetsUrl          = "assets"
+	assetIdUrl         = "assets/%d"
+	assetRestoreUrl    = "assets/%d/restore"
+	assetDeleteUrl     = "assets/%d/delete_forever"
+	assetComponentsUrl = "assets/%d/components"
+	assetContractsUrl  = "assets/%d/contracts"
+	assetTypesUrl      = "asset_types"
+	assetTypeIdUrl     = "asset_types/%d"
+)
+
 // AssetService API Docs: https://api.freshservice.com/#assets https://api.freshservice.com/#asset-types
 type AssetService struct {
 	client *Client
 }
 
-// Assets contains collection of Asset
+// Assets contains Collection an array of Asset
 type Assets struct {
 	Collection []Asset `json:"assets"`
 }
 
-// SpecificAsset contains Details of one specific Asset
-type SpecificAsset struct {
+// assetWrapper contains Details of one Asset
+type assetWrapper struct {
 	Details Asset `json:"asset"`
 }
 
@@ -42,8 +53,8 @@ type Asset struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
-// NewAsset is the data structure required to create a new Asset
-type NewAsset struct {
+// CreateAssetModel is the data structure required to create a new Asset
+type CreateAssetModel struct {
 	Name         string    `json:"name"`
 	Description  string    `json:"description"`
 	AssetTypeID  int       `json:"asset_type_id"`
@@ -58,8 +69,8 @@ type NewAsset struct {
 	AssignedOn   time.Time `json:"assigned_on"`
 }
 
-// UpdateAsset is the data structure required to update an Asset
-type UpdateAsset struct {
+// UpdateAssetModel is the data structure required to update an Asset
+type UpdateAssetModel struct {
 	Name         string    `json:"name"`
 	Description  string    `json:"description"`
 	AssetTypeID  int       `json:"asset_type_id"`
@@ -74,19 +85,19 @@ type UpdateAsset struct {
 	AssignedOn   time.Time `json:"assigned_on"`
 }
 
-// ListAssetOptions represents filters for Assets
-type ListAssetOptions struct {
+// ListAssetsOptions represents filters/pagination for Assets
+type ListAssetsOptions struct {
 	ListOptions
 }
 
-// GetAsset will return a single Asset by displayId, assuming a record is found
+// GetAsset will return a single Asset by displayId
 func (s *AssetService) GetAsset(displayId int) (*Asset, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("assets/%v", displayId), nil)
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(assetIdUrl, displayId), nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	a := new(SpecificAsset)
+	a := new(assetWrapper)
 	res, err := s.client.SendRequest(req, &a)
 	if b, s := isSuccessful(res); !b {
 		return nil, res, fmt.Errorf("%s: %v", s, err)
@@ -95,9 +106,9 @@ func (s *AssetService) GetAsset(displayId int) (*Asset, *http.Response, error) {
 	return &a.Details, res, nil
 }
 
-// GetAssets will return Assets collection
-func (s *AssetService) GetAssets(opt *ListAssetOptions) (*Assets, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "assets", opt)
+// ListAssets will return paginated/filtered Assets using ListAssetsOptions
+func (s *AssetService) ListAssets(opt *ListAssetsOptions) (*Assets, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, assetsUrl, opt)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -111,14 +122,14 @@ func (s *AssetService) GetAssets(opt *ListAssetOptions) (*Assets, *http.Response
 	return as, res, nil
 }
 
-// CreateAsset will create a new Asset in FreshService
-func (s *AssetService) CreateAsset(newAsset *NewAsset) (*Asset, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPost, "assets", newAsset)
+// CreateAsset will create and return a new Asset based on CreateAssetModel
+func (s *AssetService) CreateAsset(newAsset *CreateAssetModel) (*Asset, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodPost, assetsUrl, newAsset)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	a := new(SpecificAsset)
+	a := new(assetWrapper)
 	res, err := s.client.SendRequest(req, &a)
 	if b, s := isSuccessful(res); !b {
 		return nil, res, fmt.Errorf("%s: %v", s, err)
@@ -127,14 +138,14 @@ func (s *AssetService) CreateAsset(newAsset *NewAsset) (*Asset, *http.Response, 
 	return &a.Details, res, nil
 }
 
-// UpdateAsset will update the Asset matching the displayId and return the updated Asset
-func (s *AssetService) UpdateAsset(displayId int, asset *UpdateAsset) (*Asset, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf("assets/%d", displayId), asset)
+// UpdateAsset will update and return an Asset matching displayId based on UpdateAssetModel
+func (s *AssetService) UpdateAsset(displayId int, asset *UpdateAssetModel) (*Asset, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(assetIdUrl, displayId), asset)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	a := new(SpecificAsset)
+	a := new(assetWrapper)
 	res, err := s.client.SendRequest(req, &a)
 	if b, s := isSuccessful(res); !b {
 		return nil, res, fmt.Errorf("%s: %v", s, err)
@@ -145,7 +156,7 @@ func (s *AssetService) UpdateAsset(displayId int, asset *UpdateAsset) (*Asset, *
 
 // TrashAsset will trash the Asset matching the displayId (non-permanent delete)
 func (s *AssetService) TrashAsset(displayId int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf("assets/%d", displayId), nil)
+	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf(assetIdUrl, displayId), nil)
 	if err != nil {
 		return false, nil, err
 	}
@@ -160,7 +171,7 @@ func (s *AssetService) TrashAsset(displayId int) (bool, *http.Response, error) {
 
 // RestoreAsset will restore a previously Trashed Asset by displayId
 func (s *AssetService) RestoreAsset(displayId int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf("assets/%d/restore", displayId), nil)
+	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(assetRestoreUrl, displayId), nil)
 	if err != nil {
 		return false, nil, err
 	}
@@ -175,7 +186,7 @@ func (s *AssetService) RestoreAsset(displayId int) (bool, *http.Response, error)
 
 // DeleteAsset irrecoverably removes an Asset from FreshService matching the displayId
 func (s *AssetService) DeleteAsset(displayId int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf("assets/%d/delete_forever", displayId), nil)
+	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(assetDeleteUrl, displayId), nil)
 	if err != nil {
 		return false, nil, err
 	}

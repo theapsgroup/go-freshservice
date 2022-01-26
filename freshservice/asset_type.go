@@ -6,13 +6,13 @@ import (
 	"time"
 )
 
-// AssetTypes contains collection of AssetType
+// AssetTypes contains Collection an array of AssetType
 type AssetTypes struct {
 	Collection []AssetType `json:"asset_types"`
 }
 
-// SpecificAssetType contains Details of one specific AssetType
-type SpecificAssetType struct {
+// assetTypeWrapper contains Details of one AssetType
+type assetTypeWrapper struct {
 	Details AssetType `json:"asset_type"`
 }
 
@@ -27,28 +27,33 @@ type AssetType struct {
 	UpdatedAt         time.Time `json:"updated_at"`
 }
 
-// NewAssetType is the data structure required to create a new AssetType
-type NewAssetType struct {
+// CreateAssetTypeModel is the data structure required to create a new AssetType
+type CreateAssetTypeModel struct {
 	Name              string `json:"name"`
 	Description       string `json:"description"`
 	ParentAssetTypeID int    `json:"parent_asset_type_id"`
 }
 
-// UpdateAssetType is the data structure required to update an AssetType
-type UpdateAssetType struct {
+// UpdateAssetTypeModel is the data structure required to update an AssetType
+type UpdateAssetTypeModel struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Visible     bool   `json:"visible"`
 }
 
+// ListAssetTypesOptions represents filters/pagination for AssetTypes
+type ListAssetTypesOptions struct {
+	ListOptions
+}
+
 // GetAssetType returns an AssetType by id
 func (s *AssetService) GetAssetType(id int) (*AssetType, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("asset_types/%v", id), nil)
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(assetTypeIdUrl, id), nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	at := new(SpecificAssetType)
+	at := new(assetTypeWrapper)
 	res, err := s.client.SendRequest(req, &at)
 	if b, s := isSuccessful(res); !b {
 		return nil, res, fmt.Errorf("%s: %v", s, err)
@@ -57,9 +62,9 @@ func (s *AssetService) GetAssetType(id int) (*AssetType, *http.Response, error) 
 	return &at.Details, res, nil
 }
 
-// GetAssetTypes will return AssetTypes collection
-func (s *AssetService) GetAssetTypes(opt *ListOptions) (*AssetTypes, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "asset_types", opt)
+// ListAssetTypes will return paginated/filtered AssetTypes using ListAssetTypesOptions
+func (s *AssetService) ListAssetTypes(opt *ListAssetTypesOptions) (*AssetTypes, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, assetTypesUrl, opt)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -73,14 +78,14 @@ func (s *AssetService) GetAssetTypes(opt *ListOptions) (*AssetTypes, *http.Respo
 	return ats, res, nil
 }
 
-// CreateAssetType creates and returns a new AssetType
-func (s *AssetService) CreateAssetType(newAssetType NewAssetType) (*AssetType, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPost, "asset_types", newAssetType)
+// CreateAssetType creates and returns a new AssetType based on CreateAssetTypeModel
+func (s *AssetService) CreateAssetType(newAssetType CreateAssetTypeModel) (*AssetType, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodPost, assetTypesUrl, newAssetType)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	at := new(SpecificAssetType)
+	at := new(assetTypeWrapper)
 	res, err := s.client.SendRequest(req, &at)
 	if b, s := isSuccessful(res); !b {
 		return nil, res, fmt.Errorf("%s: %v", s, err)
@@ -89,14 +94,14 @@ func (s *AssetService) CreateAssetType(newAssetType NewAssetType) (*AssetType, *
 	return &at.Details, res, nil
 }
 
-// UpdateAssetType updates and returns an AssetType
-func (s *AssetService) UpdateAssetType(id int, updatedAssetType UpdateAssetType) (*AssetType, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf("asset_types/%d", id), updatedAssetType)
+// UpdateAssetType updates and returns an AssetType matching id based on UpdateAssetTypeModel
+func (s *AssetService) UpdateAssetType(id int, updatedAssetType UpdateAssetTypeModel) (*AssetType, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(assetTypeIdUrl, id), updatedAssetType)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	at := new(SpecificAssetType)
+	at := new(assetTypeWrapper)
 	res, err := s.client.SendRequest(req, &at)
 	if b, s := isSuccessful(res); !b {
 		return nil, res, fmt.Errorf("%s: %v", s, err)
@@ -105,9 +110,9 @@ func (s *AssetService) UpdateAssetType(id int, updatedAssetType UpdateAssetType)
 	return &at.Details, res, nil
 }
 
-// DeleteAssetType deletes an AssetType
+// DeleteAssetType irrecoverably deletes an AssetType from FreshService matching the id
 func (s *AssetService) DeleteAssetType(id int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf("asset_types/%d", id), nil)
+	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf(assetTypeIdUrl, id), nil)
 	if err != nil {
 		return false, nil, err
 	}

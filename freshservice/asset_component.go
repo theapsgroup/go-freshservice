@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// AssetComponents contains collection of AssetComponent
+// AssetComponents contains Collection an array of AssetComponent
 type AssetComponents struct {
 	Collection []AssetComponent `json:"components"`
 }
@@ -20,9 +20,9 @@ type AssetComponent struct {
 	UpdatedAt     time.Time   `json:"updated_at"`
 }
 
-// GetAssetComponents obtains AssetComponents for a given Asset by displayId
-func (s *AssetService) GetAssetComponents(displayId int) (*AssetComponents, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("assets/%v/components", displayId), nil)
+// ListAssetComponents will return all AssetComponents for a given Asset by displayId
+func (s *AssetService) ListAssetComponents(displayId int) (*AssetComponents, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(assetComponentsUrl, displayId), nil)
 	if err != nil {
 		return nil, nil, err
 	}

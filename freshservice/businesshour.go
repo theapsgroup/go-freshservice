@@ -6,23 +6,28 @@ import (
 	"time"
 )
 
+const (
+	businessHoursUrl   = "business_hours"
+	businessHoursIdUrl = "business_hours/%d"
+)
+
 // BusinessHoursService API Docs: https://api.freshservice.com/#business-hours
 type BusinessHoursService struct {
 	client *Client
 }
 
-// BusinessHoursCollection contains collection of BusinessHours
-type BusinessHoursCollection struct {
-	Collection []BusinessHours `json:"business_hours"`
-}
-
-// SpecificBusinessHours contains Details of one specific BusinessHours
-type SpecificBusinessHours struct {
-	Details BusinessHours `json:"business_hours"`
-}
-
-// BusinessHours represents the BusinessHours configuration in the FreshService instance
+// BusinessHours contains Collection an array of BusinessHour
 type BusinessHours struct {
+	Collection []BusinessHour `json:"business_hours"`
+}
+
+// businessHourWrapper contains Details of one BusinessHour
+type businessHourWrapper struct {
+	Details BusinessHour `json:"business_hours"`
+}
+
+// BusinessHour represents the BusinessHour configuration in the FreshService instance
+type BusinessHour struct {
 	ID               int                `json:"id"`
 	Name             string             `json:"name"`
 	Description      string             `json:"description"`
@@ -46,19 +51,19 @@ type Holiday struct {
 	HolidayName string `json:"holiday_name"`
 }
 
-// ListBusinessHoursOptions represents filters/pagination for BusinessHours
+// ListBusinessHoursOptions represents filters/pagination for BusinessHour
 type ListBusinessHoursOptions struct {
 	ListOptions
 }
 
-// GetBusinessHours will return a single BusinessHours configuration by id
-func (s *BusinessHoursService) GetBusinessHours(id int) (*BusinessHours, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("business_hours/%v", id), nil)
+// GetBusinessHours will return a single BusinessHour configuration by id
+func (s *BusinessHoursService) GetBusinessHours(id int) (*BusinessHour, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(businessHoursIdUrl, id), nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	bh := new(SpecificBusinessHours)
+	bh := new(businessHourWrapper)
 	res, err := s.client.SendRequest(req, &bh)
 	if b, s := isSuccessful(res); !b {
 		return nil, res, fmt.Errorf("%s: %v", s, err)
@@ -67,9 +72,9 @@ func (s *BusinessHoursService) GetBusinessHours(id int) (*BusinessHours, *http.R
 	return &bh.Details, res, nil
 }
 
-// ListBusinessHours will return BusinessHoursCollection
+// ListBusinessHours will return paginated/filtered BusinessHours using ListBusinessHoursOptions
 func (s *BusinessHoursService) ListBusinessHours(opt *ListBusinessHoursOptions) (*BusinessHours, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "business_hours", opt)
+	req, err := s.client.NewRequest(http.MethodGet, businessHoursUrl, opt)
 	if err != nil {
 		return nil, nil, err
 	}
