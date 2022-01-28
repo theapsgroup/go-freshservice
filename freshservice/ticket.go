@@ -12,6 +12,8 @@ const (
 	ticketRestoreUrl          = "tickets/%d/restore"
 	ticketRemoveAttachmentUrl = "tickets/%d/attachments/%d"
 	ticketActivitiesUrl       = "tickets/%d/activities"
+	ticketTimeEntryUrl        = "tickets/%d/time_entries"
+	ticketTimeEntryIdUrl      = "tickets/%d/time_entries/%d"
 )
 
 const (
