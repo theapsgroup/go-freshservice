@@ -70,79 +70,34 @@ type ListLocationsOptions struct {
 
 // GetLocation will return a Location by id
 func (s *LocationService) GetLocation(id int) (*Location, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(locationIdUrl, id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	l := new(locationWrapper)
-	res, err := s.client.SendRequest(req, &l)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &l.Details, res, nil
+	o := new(locationWrapper)
+	res, err := s.client.Get(fmt.Sprintf(locationIdUrl, id), &o)
+	return &o.Details, res, err
 }
 
 // ListLocations will return paginated/filtered Locations using ListLocationsOptions
 func (s *LocationService) ListLocations(opt *ListLocationsOptions) (*Locations, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, locationsUrl, opt)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	ls := new(Locations)
-	res, err := s.client.SendRequest(req, &ls)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return ls, res, nil
+	o := new(Locations)
+	res, err := s.client.List(locationsUrl, opt, &o)
+	return o, res, err
 }
 
 // CreateLocation will create and return a new Location based on CreateLocationModel
 func (s *LocationService) CreateLocation(newLocation *CreateLocationModel) (*Location, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPost, locationsUrl, newLocation)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	l := new(locationWrapper)
-	res, err := s.client.SendRequest(req, &l)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &l.Details, res, nil
+	o := new(locationWrapper)
+	res, err := s.client.Post(locationsUrl, newLocation, &o)
+	return &o.Details, res, err
 }
 
 // UpdateLocation will update and return a Location matching id based UpdateLocationModel
 func (s *LocationService) UpdateLocation(id int, location *UpdateLocationModel) (*Location, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(locationIdUrl, id), location)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	l := new(locationWrapper)
-	res, err := s.client.SendRequest(req, &l)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &l.Details, res, nil
+	o := new(locationWrapper)
+	res, err := s.client.Put(fmt.Sprintf(locationIdUrl, id), location, &o)
+	return &o.Details, res, err
 }
 
 // DeleteLocation will completely remove a Location from FreshService matching id
 func (s *LocationService) DeleteLocation(id int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf(locationIdUrl, id), nil)
-	if err != nil {
-		return false, nil, err
-	}
-
-	res, err := s.client.SendRequest(req, nil)
-	if b, s := isSuccessful(res); !b {
-		return false, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return true, res, nil
+	success, res, err := s.client.Delete(fmt.Sprintf(locationIdUrl, id))
+	return success, res, err
 }

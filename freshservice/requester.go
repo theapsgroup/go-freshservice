@@ -100,111 +100,47 @@ type ListRequestersOptions struct {
 
 // GetRequester will return a single Requester by id
 func (s *RequesterService) GetRequester(id int) (*Requester, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(requesterIdUrl, id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	r := new(requesterWrapper)
-	res, err := s.client.SendRequest(req, &r)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &r.Details, res, nil
+	o := new(requesterWrapper)
+	res, err := s.client.Get(fmt.Sprintf(requesterIdUrl, id), &o)
+	return &o.Details, res, err
 }
 
 // ListRequesters will return paginated/filtered Requesters using ListRequestersOptions
 func (s *RequesterService) ListRequesters(opt *ListRequestersOptions) (*Requesters, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, requestersUrl, opt)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	rs := new(Requesters)
-	res, err := s.client.SendRequest(req, &rs)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return rs, res, nil
+	o := new(Requesters)
+	res, err := s.client.List(requestersUrl, opt, &o)
+	return o, res, err
 }
 
 // CreateRequester will create and return a new Requester based on CreateRequesterModel
 func (s *RequesterService) CreateRequester(newRequester *CreateRequesterModel) (*Requester, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPost, requestersUrl, newRequester)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	r := new(requesterWrapper)
-	res, err := s.client.SendRequest(req, &r)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &r.Details, res, nil
+	o := new(requesterWrapper)
+	res, err := s.client.Post(requestersUrl, newRequester, &o)
+	return &o.Details, res, err
 }
 
 // UpdateRequester will update and return an Requester matching id based on UpdateRequesterModel
 func (s *RequesterService) UpdateRequester(id int, requester *UpdateRequesterModel) (*Requester, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(requesterIdUrl, id), requester)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	r := new(requesterWrapper)
-	res, err := s.client.SendRequest(req, &r)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &r.Details, res, nil
+	o := new(requesterWrapper)
+	res, err := s.client.Put(fmt.Sprintf(requesterIdUrl, id), requester, &o)
+	return &o.Details, res, err
 }
 
 // DeleteRequester will completely remove a Requester from FreshService matching id (along with their requested Tickets)
 func (s *RequesterService) DeleteRequester(id int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf(requesterForgetUrl, id), nil)
-	if err != nil {
-		return false, nil, err
-	}
-
-	res, err := s.client.SendRequest(req, nil)
-	if b, s := isSuccessful(res); !b {
-		return false, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return true, res, nil
+	success, res, err := s.client.Delete(fmt.Sprintf(requesterForgetUrl, id))
+	return success, res, err
 }
 
 // DeactivateRequester will deactivate the Requester matching the id
-func (s *RequesterService) DeactivateRequester(id int) (*Requester, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf(requesterIdUrl, id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	r := new(requesterWrapper)
-	res, err := s.client.SendRequest(req, &r)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &r.Details, res, nil
+func (s *RequesterService) DeactivateRequester(id int) (bool, *http.Response, error) {
+	success, res, err := s.client.Delete(fmt.Sprintf(requesterIdUrl, id))
+	return success, res, err
 }
 
 // ReactivateRequester will reactivate a deactivated Requester matching the id
 func (s *RequesterService) ReactivateRequester(id int) (*Requester, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(requesterReactivateUrl, id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	r := new(requesterWrapper)
-	res, err := s.client.SendRequest(req, &r)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &r.Details, res, nil
+	o := new(requesterWrapper)
+	res, err := s.client.Put(fmt.Sprintf(requesterReactivateUrl, id), nil, &o)
+	return &o.Details, res, err
 }

@@ -92,109 +92,48 @@ type ListAssetsOptions struct {
 
 // GetAsset will return a single Asset by displayId
 func (s *AssetService) GetAsset(displayId int) (*Asset, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(assetIdUrl, displayId), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	a := new(assetWrapper)
-	res, err := s.client.SendRequest(req, &a)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &a.Details, res, nil
+	o := new(assetWrapper)
+	res, err := s.client.Get(fmt.Sprintf(assetIdUrl, displayId), &o)
+	return &o.Details, res, err
 }
 
 // ListAssets will return paginated/filtered Assets using ListAssetsOptions
 func (s *AssetService) ListAssets(opt *ListAssetsOptions) (*Assets, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, assetsUrl, opt)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	as := new(Assets)
-	res, err := s.client.SendRequest(req, &as)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return as, res, nil
+	o := new(Assets)
+	res, err := s.client.List(assetsUrl, opt, &o)
+	return o, res, err
 }
 
 // CreateAsset will create and return a new Asset based on CreateAssetModel
 func (s *AssetService) CreateAsset(newAsset *CreateAssetModel) (*Asset, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPost, assetsUrl, newAsset)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	a := new(assetWrapper)
-	res, err := s.client.SendRequest(req, &a)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &a.Details, res, nil
+	o := new(assetWrapper)
+	res, err := s.client.Post(assetsUrl, newAsset, &o)
+	return &o.Details, res, err
 }
 
 // UpdateAsset will update and return an Asset matching displayId based on UpdateAssetModel
 func (s *AssetService) UpdateAsset(displayId int, asset *UpdateAssetModel) (*Asset, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(assetIdUrl, displayId), asset)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	a := new(assetWrapper)
-	res, err := s.client.SendRequest(req, &a)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &a.Details, res, nil
+	o := new(assetWrapper)
+	res, err := s.client.Put(fmt.Sprintf(assetIdUrl, displayId), asset, &o)
+	return &o.Details, res, err
 }
 
 // TrashAsset will trash the Asset matching the displayId (non-permanent delete)
 func (s *AssetService) TrashAsset(displayId int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf(assetIdUrl, displayId), nil)
-	if err != nil {
-		return false, nil, err
-	}
-
-	res, err := s.client.SendRequest(req, nil)
-	if b, s := isSuccessful(res); !b {
-		return false, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return true, res, nil
+	success, res, err := s.client.Delete(fmt.Sprintf(assetIdUrl, displayId))
+	return success, res, err
 }
 
 // RestoreAsset will restore a previously Trashed Asset by displayId
 func (s *AssetService) RestoreAsset(displayId int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(assetRestoreUrl, displayId), nil)
-	if err != nil {
-		return false, nil, err
-	}
-
-	res, err := s.client.SendRequest(req, nil)
-	if b, s := isSuccessful(res); !b {
-		return false, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return true, res, nil
+	res, err := s.client.Put(fmt.Sprintf(assetRestoreUrl, displayId), nil, nil)
+	success, _ := isSuccessful(res)
+	return success, res, err
 }
 
 // DeleteAsset irrecoverably removes an Asset from FreshService matching the displayId
 func (s *AssetService) DeleteAsset(displayId int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(assetDeleteUrl, displayId), nil)
-	if err != nil {
-		return false, nil, err
-	}
-
-	res, err := s.client.SendRequest(req, nil)
-	if b, s := isSuccessful(res); !b {
-		return false, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return true, res, nil
+	res, err := s.client.Put(fmt.Sprintf(assetDeleteUrl, displayId), nil, nil)
+	success, _ := isSuccessful(res)
+	return success, res, err
 }

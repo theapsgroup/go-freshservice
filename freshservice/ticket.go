@@ -182,125 +182,54 @@ type ListTicketsOptions struct {
 
 // GetTicket will return a single Ticket by id
 func (s *TicketService) GetTicket(id int) (*Ticket, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(ticketIdUrl, id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	t := new(ticketWrapper)
-	res, err := s.client.SendRequest(req, &t)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &t.Details, res, nil
+	o := new(ticketWrapper)
+	res, err := s.client.Get(fmt.Sprintf(ticketIdUrl, id), &o)
+	return &o.Details, res, err
 }
 
 // ListTickets will return paginated/filtered Ticket using ListTicketsOptions
 func (s *TicketService) ListTickets(opt *ListTicketsOptions) (*Tickets, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, ticketsUrl, opt)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	ts := new(Tickets)
-	res, err := s.client.SendRequest(req, &ts)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return ts, res, nil
+	o := new(Tickets)
+	res, err := s.client.List(ticketsUrl, opt, &o)
+	return o, res, err
 }
 
 // CreateTicket will create and return a new Ticket based on CreateTicketModel
 func (s *TicketService) CreateTicket(newTicket *CreateAgentModel) (*Ticket, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPost, ticketsUrl, newTicket)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	t := new(ticketWrapper)
-	res, err := s.client.SendRequest(req, &t)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &t.Details, res, nil
+	o := new(ticketWrapper)
+	res, err := s.client.Post(ticketsUrl, newTicket, &o)
+	return &o.Details, res, err
 }
 
 // UpdateTicket will update and return a Ticket matching id based on UpdateTicketModel
 func (s *TicketService) UpdateTicket(id int, ticket *UpdateTicketModel) (*Ticket, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(ticketIdUrl, id), ticket)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	t := new(ticketWrapper)
-	res, err := s.client.SendRequest(req, &t)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &t.Details, res, nil
+	o := new(ticketWrapper)
+	res, err := s.client.Put(fmt.Sprintf(ticketIdUrl, id), ticket, &o)
+	return &o.Details, res, err
 }
 
 // DeleteTicket will trash a Ticket from FreshService (Can be restored by RestoreTicket)
 func (s *TicketService) DeleteTicket(id int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf(ticketIdUrl, id), nil)
-	if err != nil {
-		return false, nil, err
-	}
-
-	res, err := s.client.SendRequest(req, nil)
-	if b, s := isSuccessful(res); !b {
-		return false, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return true, res, nil
+	success, res, err := s.client.Delete(fmt.Sprintf(ticketIdUrl, id))
+	return success, res, err
 }
 
 // RestoreTicket will restore a previously trashed (deleted) Ticket
 func (s *TicketService) RestoreTicket(id int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(ticketRestoreUrl, id), nil)
-	if err != nil {
-		return false, nil, err
-	}
-
-	res, err := s.client.SendRequest(req, nil)
-	if b, s := isSuccessful(res); !b {
-		return false, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return true, res, nil
+	res, err := s.client.Put(fmt.Sprintf(ticketRestoreUrl, id), nil, nil)
+	success, _ := isSuccessful(res)
+	return success, res, err
 }
 
 // DeleteAttachment will remove a TicketAttachment from a Ticket
 func (s *TicketService) DeleteAttachment(ticketId int, attachmentId int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf(ticketRemoveAttachmentUrl, ticketId, attachmentId), nil)
-	if err != nil {
-		return false, nil, err
-	}
-
-	res, err := s.client.SendRequest(req, nil)
-	if b, s := isSuccessful(res); !b {
-		return false, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return true, res, nil
+	success, res, err := s.client.Delete(fmt.Sprintf(ticketRemoveAttachmentUrl, ticketId, attachmentId))
+	return success, res, err
 }
 
 // GetAudit returns TicketActivities for a specific Ticket
 func (s *TicketService) GetAudit(ticketId int) (*TicketActivities, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(ticketActivitiesUrl, ticketId), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	as := new(TicketActivities)
-	res, err := s.client.SendRequest(req, &as)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return as, res, nil
+	o := new(TicketActivities)
+	res, err := s.client.List(fmt.Sprintf(ticketActivitiesUrl, ticketId), nil, &o)
+	return o, res, err
 }

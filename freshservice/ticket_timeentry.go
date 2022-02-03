@@ -33,32 +33,14 @@ type TimeEntries struct {
 
 // GetTimeEntry will return a single TimeEntry for the specified Ticket
 func (s *TicketService) GetTimeEntry(ticketId int, timeEntryId int) (*TimeEntry, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(ticketTimeEntryIdUrl, ticketId, timeEntryId), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	te := new(timeEntryWrapper)
-	res, err := s.client.SendRequest(req, &te)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &te.Details, res, nil
+	o := new(timeEntryWrapper)
+	res, err := s.client.Get(fmt.Sprintf(ticketTimeEntryIdUrl, ticketId, timeEntryId), &o)
+	return &o.Details, res, err
 }
 
 // ListTimeEntries will return TimeEntries for the specified Ticket
 func (s *TicketService) ListTimeEntries(ticketId int) (*TimeEntries, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(ticketTimeEntryUrl, ticketId), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	tes := new(TimeEntries)
-	res, err := s.client.SendRequest(req, &tes)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return tes, res, nil
+	o := new(TimeEntries)
+	res, err := s.client.List(ticketTimeEntryUrl, nil, &o)
+	return o, res, err
 }
