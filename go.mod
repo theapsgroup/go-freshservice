@@ -1,4 +1,4 @@
-module go-freshservice
+module github.com/theapsgroup/go-freshservice
 
 go 1.17
 
