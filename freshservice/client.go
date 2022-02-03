@@ -146,8 +146,7 @@ func (c *Client) setBackoff(min time.Duration, max time.Duration, attemptNum int
 	return retryHttp.LinearJitterBackoff(min, max, attemptNum, res)
 }
 
-// NewRequest creates an instance of a retryable http request.
-func (c *Client) NewRequest(method string, path string, opt interface{}) (*retryHttp.Request, error) {
+func (c *Client) buildRequest(method string, path string, opt interface{}) (*retryHttp.Request, error) {
 	dest := *c.baseUrl
 
 	unescaped, err := url.PathUnescape(path)
@@ -200,8 +199,8 @@ func (c *Client) NewRequest(method string, path string, opt interface{}) (*retry
 	return req, nil
 }
 
-func (c *Client) SendRequest(req *retryHttp.Request, o interface{}) (*http.Response, error) {
-	fmt.Println(req.URL.String())
+func (c *Client) sendRequest(req *retryHttp.Request, o interface{}) (*http.Response, error) {
+	fmt.Printf("%s\n", req.URL.String())
 	req.SetBasicAuth(c.token, "X")
 
 	res, err := c.client.Do(req)
@@ -224,6 +223,76 @@ func (c *Client) SendRequest(req *retryHttp.Request, o interface{}) (*http.Respo
 	}
 
 	return res, err
+}
+
+func (c *Client) Get(path string, out interface{}) (*http.Response, error) {
+	req, err := c.buildRequest(http.MethodGet, path, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creating GET request for path '%s': %v", path, err)
+	}
+
+	res, err := c.sendRequest(req, &out)
+	if b, s := isSuccessful(res); !b {
+		return res, fmt.Errorf("%s: %v", s, err)
+	}
+
+	return res, nil
+}
+
+func (c *Client) List(path string, opt interface{}, out interface{}) (*http.Response, error) {
+	req, err := c.buildRequest(http.MethodGet, path, opt)
+	if err != nil {
+		return nil, fmt.Errorf("error creating GET request for path '%s': %v", path, err)
+	}
+
+	res, err := c.sendRequest(req, &out)
+	if b, s := isSuccessful(res); !b {
+		return res, fmt.Errorf("%s: %v", s, err)
+	}
+
+	return res, nil
+}
+
+func (c *Client) Post(path string, body interface{}, out interface{}) (*http.Response, error) {
+	req, err := c.buildRequest(http.MethodPost, path, body)
+	if err != nil {
+		return nil, fmt.Errorf("error creating POST request for path '%s': %v", path, err)
+	}
+
+	res, err := c.sendRequest(req, &out)
+	if b, s := isSuccessful(res); !b {
+		return res, fmt.Errorf("%s: %v", s, err)
+	}
+
+	return res, nil
+}
+
+func (c *Client) Put(path string, body interface{}, out interface{}) (*http.Response, error) {
+	req, err := c.buildRequest(http.MethodPut, path, body)
+	if err != nil {
+		return nil, fmt.Errorf("error creating PUT request for path '%s': %v", path, err)
+	}
+
+	res, err := c.sendRequest(req, &out)
+	if b, s := isSuccessful(res); !b {
+		return res, fmt.Errorf("%s: %v", s, err)
+	}
+
+	return res, nil
+}
+
+func (c *Client) Delete(path string) (bool, *http.Response, error) {
+	req, err := c.buildRequest(http.MethodDelete, path, nil)
+	if err != nil {
+		return false, nil, fmt.Errorf("error creating DELETE request for path '%s': %v", path, err)
+	}
+
+	res, err := c.sendRequest(req, nil)
+	if b, s := isSuccessful(res); !b {
+		return false, res, fmt.Errorf("%s: %v", s, err)
+	}
+
+	return true, res, nil
 }
 
 // buildBaseUrl sets the baseUrl based on provided subdomain

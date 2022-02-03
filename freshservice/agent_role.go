@@ -38,32 +38,14 @@ type ListAgentRolesOptions struct {
 
 // GetAgentRole will return a single AgentRole by id
 func (s *AgentService) GetAgentRole(id int) (*AgentRole, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(agentRoleIdUrl, id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	ar := new(agentRoleWrapper)
-	res, err := s.client.SendRequest(req, &ar)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &ar.Details, res, nil
+	o := new(agentRoleWrapper)
+	res, err := s.client.Get(fmt.Sprintf(agentRoleIdUrl, id), &o)
+	return &o.Details, res, err
 }
 
 // ListAgentRoles will return paginated/filtered AgentRoles using ListAgentRolesOptions
 func (s *AgentService) ListAgentRoles(opt ListAgentRolesOptions) (*AgentRoles, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, agentRolesUrl, opt)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	ars := new(AgentRoles)
-	res, err := s.client.SendRequest(req, &ars)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return ars, res, nil
+	o := new(AgentRoles)
+	res, err := s.client.List(agentRolesUrl, opt, &o)
+	return o, res, err
 }

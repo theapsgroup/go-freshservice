@@ -22,16 +22,7 @@ type AssetComponent struct {
 
 // ListAssetComponents will return all AssetComponents for a given Asset by displayId
 func (s *AssetService) ListAssetComponents(displayId int) (*AssetComponents, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(assetComponentsUrl, displayId), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	acs := new(AssetComponents)
-	res, err := s.client.SendRequest(req, &acs)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return acs, res, nil
+	o := new(AssetComponents)
+	res, err := s.client.List(fmt.Sprintf(assetComponentsUrl, displayId), nil, &o)
+	return o, res, err
 }

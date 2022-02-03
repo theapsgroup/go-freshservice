@@ -69,79 +69,34 @@ type ListVendorsOptions struct {
 
 // GetVendor will return a single Vendor by id
 func (s *VendorService) GetVendor(id int) (*Vendor, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(vendorIdUrl, id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	v := new(vendorWrapper)
-	res, err := s.client.SendRequest(req, &v)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &v.Details, res, nil
+	o := new(vendorWrapper)
+	res, err := s.client.Get(fmt.Sprintf(vendorIdUrl, id), &o)
+	return &o.Details, res, err
 }
 
 // ListVendors will return paginated/filtered Vendors using ListVendorsOptions
 func (s *VendorService) ListVendors(opt *ListVendorsOptions) (*Vendors, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, vendorsUrl, opt)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	vs := new(Vendors)
-	res, err := s.client.SendRequest(req, &vs)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return vs, res, nil
+	o := new(Vendors)
+	res, err := s.client.List(vendorsUrl, opt, &o)
+	return o, res, err
 }
 
 // CreateVendor will create and return a new Vendor based on CreateVendorModel
 func (s *VendorService) CreateVendor(newVendor *CreateVendorModel) (*Vendor, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPost, vendorsUrl, newVendor)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	v := new(vendorWrapper)
-	res, err := s.client.SendRequest(req, &v)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &v.Details, res, nil
+	o := new(vendorWrapper)
+	res, err := s.client.Post(vendorsUrl, newVendor, &o)
+	return &o.Details, res, err
 }
 
 // UpdateVendor will update and return a Vendor matching id based on UpdateVendorModel
 func (s *VendorService) UpdateVendor(id int, vendor *UpdateVendorModel) (*Vendor, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(vendorIdUrl, id), vendor)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	v := new(vendorWrapper)
-	res, err := s.client.SendRequest(req, &v)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &v.Details, res, nil
+	o := new(vendorWrapper)
+	res, err := s.client.Put(fmt.Sprintf(vendorIdUrl, id), vendor, &o)
+	return &o.Details, res, err
 }
 
 // DeleteVendor will completely remove a Vendor from FreshService matching id
 func (s *VendorService) DeleteVendor(id int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf(vendorIdUrl, id), nil)
-	if err != nil {
-		return false, nil, err
-	}
-
-	res, err := s.client.SendRequest(req, nil)
-	if b, s := isSuccessful(res); !b {
-		return false, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return true, res, nil
+	success, res, err := s.client.Delete(fmt.Sprintf(vendorIdUrl, id))
+	return success, res, err
 }

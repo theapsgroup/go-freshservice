@@ -21,16 +21,7 @@ type AssetContract struct {
 
 // ListAssetContracts will return all AssetContracts for a given Asset by displayId
 func (s *AssetService) ListAssetContracts(displayId int) (*AssetContracts, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(assetContractsUrl, displayId), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	acs := new(AssetContracts)
-	res, err := s.client.SendRequest(req, &acs)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return acs, res, nil
+	o := new(AssetContracts)
+	res, err := s.client.List(fmt.Sprintf(assetContractsUrl, displayId), nil, &o)
+	return o, res, err
 }

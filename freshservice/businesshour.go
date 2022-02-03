@@ -58,32 +58,14 @@ type ListBusinessHoursOptions struct {
 
 // GetBusinessHours will return a single BusinessHour configuration by id
 func (s *BusinessHoursService) GetBusinessHours(id int) (*BusinessHour, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(businessHoursIdUrl, id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	bh := new(businessHourWrapper)
-	res, err := s.client.SendRequest(req, &bh)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &bh.Details, res, nil
+	o := new(businessHourWrapper)
+	res, err := s.client.Get(fmt.Sprintf(businessHoursIdUrl, id), &o)
+	return &o.Details, res, err
 }
 
 // ListBusinessHours will return paginated/filtered BusinessHours using ListBusinessHoursOptions
 func (s *BusinessHoursService) ListBusinessHours(opt *ListBusinessHoursOptions) (*BusinessHours, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, businessHoursUrl, opt)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	bhs := new(BusinessHours)
-	res, err := s.client.SendRequest(req, &bhs)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return bhs, res, nil
+	o := new(BusinessHours)
+	res, err := s.client.List(businessHoursUrl, opt, &o)
+	return o, res, err
 }

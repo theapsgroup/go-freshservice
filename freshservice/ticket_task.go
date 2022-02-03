@@ -57,79 +57,34 @@ type ListTasksOptions struct {
 
 // GetTask will return a single Task from a Ticket by the id
 func (s *TicketService) GetTask(ticketId int, taskId int) (*Task, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(ticketTaskIdUrl, ticketId, taskId), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	t := new(taskWrapper)
-	res, err := s.client.SendRequest(req, &t)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &t.Details, res, nil
+	o := new(taskWrapper)
+	res, err := s.client.Get(fmt.Sprintf(ticketTaskIdUrl, ticketId, taskId), &o)
+	return &o.Details, res, err
 }
 
 // ListTasks will return paginated/filtered Tasks using ListTasksOptions
-func (s *TicketService) ListTasks(opt *ListTasksOptions) (*Tasks, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, ticketTasksUrl, opt)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	ts := new(Tasks)
-	res, err := s.client.SendRequest(req, &ts)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return ts, res, nil
+func (s *TicketService) ListTasks(ticketId int, opt *ListTasksOptions) (*Tasks, *http.Response, error) {
+	o := new(Tasks)
+	res, err := s.client.List(fmt.Sprintf(ticketTasksUrl, ticketId), opt, &o)
+	return o, res, err
 }
 
 // CreateTask will create and return a new Task based on CreateTaskModel
-func (s *TicketService) CreateTask(newTask *CreateTaskModel) (*Task, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPost, ticketTasksUrl, newTask)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	t := new(taskWrapper)
-	res, err := s.client.SendRequest(req, &t)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &t.Details, res, nil
+func (s *TicketService) CreateTask(ticketId int, newTask *CreateTaskModel) (*Task, *http.Response, error) {
+	o := new(taskWrapper)
+	res, err := s.client.Post(fmt.Sprintf(ticketTasksUrl, ticketId), newTask, &o)
+	return &o.Details, res, err
 }
 
 // UpdateTask will update and return a Task matching id based on UpdateTaskModel
 func (s *TicketService) UpdateTask(ticketId int, taskId int, task *UpdateTaskModel) (*Task, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(ticketTaskIdUrl, ticketId, taskId), task)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	t := new(taskWrapper)
-	res, err := s.client.SendRequest(req, &t)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &t.Details, res, nil
+	o := new(taskWrapper)
+	res, err := s.client.Put(fmt.Sprintf(ticketTaskIdUrl, ticketId, taskId), task, &o)
+	return &o.Details, res, err
 }
 
 // DeleteTask deletes the Task on a Ticket with the given ID
 func (s *TicketService) DeleteTask(ticketId int, taskId int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf(ticketTaskIdUrl, ticketId, taskId), nil)
-	if err != nil {
-		return false, nil, err
-	}
-
-	res, err := s.client.SendRequest(req, nil)
-	if b, s := isSuccessful(res); !b {
-		return false, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return true, res, nil
+	success, res, err := s.client.Delete(fmt.Sprintf(ticketTaskIdUrl, ticketId, taskId))
+	return success, res, err
 }

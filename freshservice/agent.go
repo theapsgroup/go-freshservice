@@ -116,111 +116,47 @@ type ListAgentsOptions struct {
 
 // GetAgent will return a single Agent by id
 func (s *AgentService) GetAgent(id int) (*Agent, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(agentIdUrl, id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	a := new(agentWrapper)
-	res, err := s.client.SendRequest(req, &a)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &a.Details, res, nil
+	o := new(agentWrapper)
+	res, err := s.client.Get(fmt.Sprintf(agentIdUrl, id), &o)
+	return &o.Details, res, err
 }
 
 // ListAgents will return paginated/filtered Agents using ListAgentsOptions
 func (s *AgentService) ListAgents(opt *ListAgentsOptions) (*Agents, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, agentsUrl, opt)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	as := new(Agents)
-	res, err := s.client.SendRequest(req, &as)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return as, res, nil
+	o := new(Agents)
+	res, err := s.client.List(agentsUrl, opt, &o)
+	return o, res, err
 }
 
 // CreateAgent will create and return a new Agent based on CreateAgentModel
 func (s *AgentService) CreateAgent(newAgent *CreateAgentModel) (*Agent, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPost, agentsUrl, newAgent)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	a := new(agentWrapper)
-	res, err := s.client.SendRequest(req, &a)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &a.Details, res, nil
+	o := new(agentWrapper)
+	res, err := s.client.Post(agentsUrl, newAgent, &o)
+	return &o.Details, res, err
 }
 
 // UpdateAgent will update and return an Agent matching id based on UpdateAgentModel
 func (s *AgentService) UpdateAgent(id int, agent *UpdateAgentModel) (*Agent, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(agentIdUrl, id), agent)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	a := new(agentWrapper)
-	res, err := s.client.SendRequest(req, &a)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &a.Details, res, nil
+	o := new(agentWrapper)
+	res, err := s.client.Put(fmt.Sprintf(agentIdUrl, id), agent, &o)
+	return &o.Details, res, err
 }
 
 // DeleteAgent will completely remove an Agent from FreshService matching id (along with their requested Tickets)
 func (s *AgentService) DeleteAgent(id int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf(agentForgetUrl, id), nil)
-	if err != nil {
-		return false, nil, err
-	}
-
-	res, err := s.client.SendRequest(req, nil)
-	if b, s := isSuccessful(res); !b {
-		return false, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return true, res, nil
+	success, res, err := s.client.Delete(fmt.Sprintf(agentForgetUrl, id))
+	return success, res, err
 }
 
 // DeactivateAgent will deactivate the Agent matching the id
-func (s *AgentService) DeactivateAgent(id int) (*Agent, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf(agentIdUrl, id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	a := new(agentWrapper)
-	res, err := s.client.SendRequest(req, &a)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &a.Details, res, nil
+func (s *AgentService) DeactivateAgent(id int) (bool, *http.Response, error) {
+	success, res, err := s.client.Delete(fmt.Sprintf(agentIdUrl, id))
+	return success, res, err
 }
 
 // ReactivateAgent will reactivate a deactivated Agent matching the id
 func (s *AgentService) ReactivateAgent(id int) (*Agent, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(agentReactivateUrl, id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	a := new(agentWrapper)
-	res, err := s.client.SendRequest(req, &a)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &a.Details, res, nil
+	o := new(agentWrapper)
+	res, err := s.client.Put(fmt.Sprintf(agentReactivateUrl, id), nil, &o)
+	return &o.Details, res, err
 }

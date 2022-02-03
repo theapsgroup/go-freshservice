@@ -80,79 +80,34 @@ type ListAnnouncementsOptions struct {
 
 // GetAnnouncement will return a single Announcement by id
 func (s *AnnouncementService) GetAnnouncement(id int) (*Announcement, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(announcementIdUrl, id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	a := new(announcementWrapper)
-	res, err := s.client.SendRequest(req, &a)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &a.Details, res, nil
+	o := new(announcementWrapper)
+	res, err := s.client.Get(fmt.Sprintf(announcementIdUrl, id), &o)
+	return &o.Details, res, err
 }
 
 // ListAnnouncements will return paginated/filtered Announcements using ListAnnouncementsOptions
 func (s *AnnouncementService) ListAnnouncements(opt ListAnnouncementsOptions) (*Announcements, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, announcementsUrl, opt)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	as := new(Announcements)
-	res, err := s.client.SendRequest(req, &as)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return as, res, nil
+	o := new(Announcements)
+	res, err := s.client.List(announcementsUrl, opt, &o)
+	return o, res, err
 }
 
 // CreateAnnouncement will create and return a new Announcement based on CreateAnnouncementModel
 func (s *AnnouncementService) CreateAnnouncement(newAnnouncement *CreateAnnouncementModel) (*Announcement, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPost, announcementsUrl, newAnnouncement)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	a := new(announcementWrapper)
-	res, err := s.client.SendRequest(req, &a)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &a.Details, res, nil
+	o := new(announcementWrapper)
+	res, err := s.client.Post(announcementsUrl, newAnnouncement, &o)
+	return &o.Details, res, err
 }
 
 // UpdateAnnouncement will update and return the Announcement matching the id based on UpdateAnnouncementModel
 func (s *AnnouncementService) UpdateAnnouncement(id int, announcement *UpdateAnnouncementModel) (*Announcement, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(announcementIdUrl, id), announcement)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	a := new(announcementWrapper)
-	res, err := s.client.SendRequest(req, &a)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &a.Details, res, nil
+	o := new(announcementWrapper)
+	res, err := s.client.Put(fmt.Sprintf(announcementIdUrl, id), announcement, &o)
+	return &o.Details, res, err
 }
 
 // DeleteAnnouncement irrecoverably removes an Announcement from FreshService matching the id
 func (s *AnnouncementService) DeleteAnnouncement(id int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf(announcementIdUrl, id), nil)
-	if err != nil {
-		return false, nil, err
-	}
-
-	res, err := s.client.SendRequest(req, nil)
-	if b, s := isSuccessful(res); !b {
-		return false, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return true, res, nil
+	success, res, err := s.client.Delete(fmt.Sprintf(announcementIdUrl, id))
+	return success, res, err
 }

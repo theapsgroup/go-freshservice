@@ -63,79 +63,34 @@ type ListDepartmentsOptions struct {
 
 // GetDepartment will return a single Department by id
 func (s *DepartmentService) GetDepartment(id int) (*Department, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(departmentIdUrl, id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	d := new(departmentWrapper)
-	res, err := s.client.SendRequest(req, &d)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &d.Details, res, nil
+	o := new(departmentWrapper)
+	res, err := s.client.Get(fmt.Sprintf(departmentIdUrl, id), &o)
+	return &o.Details, res, err
 }
 
 // ListDepartments will return paginated/filtered Departments using ListDepartmentsOptions
 func (s *DepartmentService) ListDepartments(opt *ListDepartmentsOptions) (*Departments, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, departmentsUrl, opt)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	ds := new(Departments)
-	res, err := s.client.SendRequest(req, &ds)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return ds, res, nil
+	o := new(Departments)
+	res, err := s.client.List(departmentsUrl, opt, &o)
+	return o, res, err
 }
 
 // CreateDepartment will create and return a new Department based on CreateDepartmentModel
 func (s *DepartmentService) CreateDepartment(newDepartment *CreateDepartmentModel) (*Department, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPost, departmentsUrl, newDepartment)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	d := new(departmentWrapper)
-	res, err := s.client.SendRequest(req, &d)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &d.Details, res, nil
+	o := new(departmentWrapper)
+	res, err := s.client.Post(departmentsUrl, newDepartment, &o)
+	return &o.Details, res, err
 }
 
 // UpdateDepartment will update and return a Department matching id based on UpdateDepartmentModel
 func (s *DepartmentService) UpdateDepartment(id int, department *UpdateDepartmentModel) (*Department, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(departmentIdUrl, id), department)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	d := new(departmentWrapper)
-	res, err := s.client.SendRequest(req, &d)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &d.Details, res, nil
+	o := new(departmentWrapper)
+	res, err := s.client.Put(fmt.Sprintf(departmentIdUrl, id), department, &o)
+	return &o.Details, res, err
 }
 
 // DeleteDepartment will completely remove a Department from FreshService matching id
 func (s *DepartmentService) DeleteDepartment(id int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf(departmentIdUrl, id), nil)
-	if err != nil {
-		return false, nil, err
-	}
-
-	res, err := s.client.SendRequest(req, nil)
-	if b, s := isSuccessful(res); !b {
-		return false, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return true, res, nil
+	success, res, err := s.client.Delete(fmt.Sprintf(departmentIdUrl, id))
+	return success, res, err
 }

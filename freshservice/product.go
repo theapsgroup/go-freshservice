@@ -72,79 +72,34 @@ type ListProductsOptions struct {
 
 // GetProduct will return a Product by id
 func (s *ProductService) GetProduct(id int) (*Product, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf(productIdUrl, id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	p := new(productWrapper)
-	res, err := s.client.SendRequest(req, &p)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &p.Details, res, nil
+	o := new(productWrapper)
+	res, err := s.client.Get(fmt.Sprintf(productIdUrl, id), &o)
+	return &o.Details, res, err
 }
 
 // ListProducts will return paginated/filtered Products using ListProductsOptions
 func (s *ProductService) ListProducts(opt *ListProductsOptions) (*Products, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, productsUrl, opt)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	ps := new(Products)
-	res, err := s.client.SendRequest(req, &ps)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return ps, res, nil
+	o := new(Products)
+	res, err := s.client.List(productsUrl, opt, &o)
+	return o, res, err
 }
 
 // CreateProduct will create and return a new Product based on CreateProductModel
 func (s *ProductService) CreateProduct(newProduct *CreateProductModel) (*Product, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPost, productsUrl, newProduct)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	p := new(productWrapper)
-	res, err := s.client.SendRequest(req, &p)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &p.Details, res, nil
+	o := new(productWrapper)
+	res, err := s.client.Post(productsUrl, newProduct, &o)
+	return &o.Details, res, err
 }
 
 // UpdateProduct will update and return a Product matching id based UpdateProductModel
 func (s *ProductService) UpdateProduct(id int, product *UpdateLocationModel) (*Product, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf(productIdUrl, id), product)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	p := new(productWrapper)
-	res, err := s.client.SendRequest(req, &p)
-	if b, s := isSuccessful(res); !b {
-		return nil, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return &p.Details, res, nil
+	o := new(productWrapper)
+	res, err := s.client.Put(fmt.Sprintf(productIdUrl, id), product, &o)
+	return &o.Details, res, err
 }
 
 // DeleteProduct will completely remove a Product from FreshService matching id
 func (s *ProductService) DeleteProduct(id int) (bool, *http.Response, error) {
-	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf(productIdUrl, id), nil)
-	if err != nil {
-		return false, nil, err
-	}
-
-	res, err := s.client.SendRequest(req, nil)
-	if b, s := isSuccessful(res); !b {
-		return false, res, fmt.Errorf("%s: %v", s, err)
-	}
-
-	return true, res, nil
+	success, res, err := s.client.Delete(fmt.Sprintf(productIdUrl, id))
+	return success, res, err
 }
