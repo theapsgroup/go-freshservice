@@ -67,7 +67,7 @@ type UpdateSolutionFolderModel struct {
 // ListSolutionFoldersOptions represents filters/pagination for SolutionFolders
 type ListSolutionFoldersOptions struct {
 	ListOptions
-	CategoryID int `json:"category_id"`
+	CategoryID int `json:"category_id,omitempty" url:"category_id,omitempty"`
 }
 
 // GetSolutionFolder will return a SolutionFolder by id

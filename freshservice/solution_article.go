@@ -67,7 +67,7 @@ type UpdateSolutionArticleModel struct {
 // ListSolutionArticlesOptions represents filters/pagination for SolutionArticles
 type ListSolutionArticlesOptions struct {
 	ListOptions
-	FolderID int `json:"folder_id"`
+	FolderID int `json:"folder_id,omitempty" url:"folder_id,omitempty"`
 }
 
 // GetSolutionArticle will return a SolutionArticle by id
