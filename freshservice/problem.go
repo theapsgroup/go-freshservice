@@ -10,6 +10,8 @@ const (
 	problemsUrl       = "problems"
 	problemIdUrl      = "problems/%d"
 	problemRestoreUrl = "problems/%d/restore"
+	problemNotesUrl   = "problems/%d/notes"
+	problemNoteIdUrl  = "problems/%d/notes/%d"
 )
 
 // ProblemService API Docs: https://api.freshservice.com/#problems
