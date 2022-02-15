@@ -11,3 +11,9 @@ type Actor struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
+
+// Description represents a Description/DescriptionText pairing.
+type Description struct {
+	Description     string `json:"description"`
+	DescriptionText string `json:"description_text"`
+}
