@@ -7,9 +7,15 @@ import (
 )
 
 const (
-    releasesUrl       = "releases"
-    releaseIdUrl      = "releases/%d"
-    releaseRestoreUrl = "releases/%d/restore"
+    releasesUrl           = "releases"
+    releaseIdUrl          = "releases/%d"
+    releaseRestoreUrl     = "releases/%d/restore"
+    releaseNotesUrl       = "releases/%d/notes"
+    releaseNoteIdUrl      = "releases/%d/notes/%d"
+    releaseTimeEntryUrl   = "releases/%d/time_entries"
+    releaseTimeEntryIdUrl = "releases/%d/time_entries/%d"
+    releaseTasksUrl       = "releases/%d/tasks"
+    releaseTaskIdUrl      = "releases/%d/tasks/%d"
 )
 
 const (
