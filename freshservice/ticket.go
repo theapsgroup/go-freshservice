@@ -16,6 +16,7 @@ const (
 	ticketTimeEntryIdUrl      = "tickets/%d/time_entries/%d"
 	ticketTasksUrl            = "tickets/%d/tasks"
 	ticketTaskIdUrl           = "tickets/%d/tasks/%d"
+	ticketConversationsUrl    = "tickets/%d/conversations"
 )
 
 const (
