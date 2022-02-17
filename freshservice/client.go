@@ -31,10 +31,8 @@ type Client struct {
 	Changes                *ChangeService
 	Contracts              *ContractService
 	Conversations          *ConversationService
-	CustomObjects          *CustomObjectService
 	Departments            *DepartmentService
 	Locations              *LocationService
-	OnBoardings            *OnboardingService
 	Problems               *ProblemService
 	Products               *ProductService
 	PurchaseOrders         *PurchaseOrderService
@@ -93,10 +91,8 @@ func NewClient(ctx context.Context, subDomain string, apiKey string) (*Client, e
 	fs.Changes = &ChangeService{client: fs}
 	fs.Contracts = &ContractService{client: fs}
 	fs.Conversations = &ConversationService{client: fs}
-	fs.CustomObjects = &CustomObjectService{client: fs}
 	fs.Departments = &DepartmentService{client: fs}
 	fs.Locations = &LocationService{client: fs}
-	fs.OnBoardings = &OnboardingService{client: fs}
 	fs.Problems = &ProblemService{client: fs}
 	fs.Products = &ProductService{client: fs}
 	fs.PurchaseOrders = &PurchaseOrderService{client: fs}
