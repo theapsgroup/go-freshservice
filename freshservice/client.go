@@ -43,7 +43,6 @@ type Client struct {
 	Solutions              *SolutionService
 	Tickets                *TicketService
 	Vendors                *VendorService
-	CustomObject           *CustomObjectService
 }
 
 // NewClient generates a new API client, requires the subdomain of your FreshService instance as well as an API key
@@ -103,7 +102,6 @@ func NewClient(ctx context.Context, subDomain string, apiKey string) (*Client, e
 	fs.Solutions = &SolutionService{client: fs}
 	fs.Tickets = &TicketService{client: fs}
 	fs.Vendors = &VendorService{client: fs}
-	fs.CustomObject = &CustomObjectService{client: fs}
 
 	return fs, nil
 }
