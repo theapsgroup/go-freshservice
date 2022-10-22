@@ -5,7 +5,7 @@ An unofficial Go client for the [FreshService](https://api.freshservice.com/) AP
 ## Usage
 
 ```go
-import "github.com/santiago8787/go-freshservice/freshservice"
+import "github.com/santiago8781/go-freshservice/freshservice"
 ```
 
 Simply create a new FreshService client, then use the various services on the client to access the different resource 
