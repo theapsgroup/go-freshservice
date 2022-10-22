@@ -1,4 +1,4 @@
-module github.com/santiago8787/go-freshservice
+module github.com/santiago8781/go-freshservice
 
 go 1.19
 
