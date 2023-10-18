@@ -289,6 +289,10 @@ func (c *Client) Delete(path string) (bool, *http.Response, error) {
 
 // buildBaseUrl sets the baseUrl based on provided subdomain
 func buildBaseUrl(subDomain string) (*url.URL, error) {
+	if strings.HasPrefix(subDomain, "http://") || strings.HasPrefix(subDomain, "https://") {
+		return url.Parse(subDomain)
+	}
+
 	return url.Parse(fmt.Sprintf("https://%s.freshservice.com/api/v2/", subDomain))
 }
 
