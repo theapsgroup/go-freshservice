@@ -8,7 +8,7 @@ An unofficial Go client for the [FreshService](https://api.freshservice.com/) AP
 import "github.com/theapsgroup/go-freshservice/freshservice"
 ```
 
-Simply create a new FreshService client, then use the various services on the client to access the different resource 
+Simply create a new FreshService client, then use the various services on the client to access the different resource
 types on the FreshService API.
 
 ```go
@@ -18,6 +18,8 @@ if err != nil {
 log.Fatalf("Failed to create client: %v", err)
 }
 ```
+
+By default, domain parameter are complete with freshservice url `company ==> https://company.freshservice.com/api/v2/`. If you set a full domain `http(s)://fresh.my.corp/api/v2` it will be used as is.
 
 ### Example
 
@@ -42,7 +44,7 @@ func main() {
     // Obtain info for a user (Requester)
     requester, _, err := fs.Requesters.GetRequester(123)
     log.Printf("%s %s - %s\n", requester.FirstName, requester.LastName, requester.Email)
-    
+
     // Obtain second page of Tickets for the Requester
     opt := freshservice.ListTicketsOptions{
         Email: &requester.Email,
@@ -50,7 +52,7 @@ func main() {
             Page: 2,
         },
     }
-    
+
     tickets, _, err := fs.Tickets.ListTickets(&opt)
     for _, ticket := range tickets.Collection {
         log.Printf("Ticket: %d (%s)\n", ticket.ID, ticket.Subject)
